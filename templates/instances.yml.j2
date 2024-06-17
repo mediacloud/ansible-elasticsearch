@@ -1,0 +1,12 @@
+instances:
+{% for host in (groups.elasticsearch | map('extract', hostvars)) %}
+  - name: {{ host.inventory_hostname }}
+    dns:
+      - {{ host.inventory_hostname }}
+{% if host.es_domain is defined %}
+      - {{ host.es_domain }}
+{% endif %}
+    ip:
+      - 127.0.0.1
+      - {{ host.ansible_default_ipv4.address }}
+{% endfor %}

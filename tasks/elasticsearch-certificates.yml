@@ -1,0 +1,61 @@
+---
+# https://opster.com/guides/elasticsearch/security/elasticsearch-cluster-security/
+- name: Generate certificates
+  block:
+    - name: Generate instances file
+      template:
+        src: instances.yml.j2
+        dest: "{{ es_ssl_certificate_path }}/instances.yml"
+        owner: root
+        group: "{{ es_group }}"
+        mode: "660"
+        force: yes
+    - name: Generate certificates for instances
+      shell: |
+        /usr/share/elasticsearch/bin/elasticsearch-certutil ca --days 7300 --pem --silent --out {{ es_ssl_certificate_path }}/ca.zip
+        unzip ca.zip
+        /usr/share/elasticsearch/bin/elasticsearch-certutil cert --days 3650 --silent --pem --ca-cert {{ es_ssl_certificate_path }}/ca/ca.crt --ca-key {{ es_ssl_certificate_path }}/ca/ca.key --in {{ es_ssl_certificate_path }}/instances.yml -out {{ es_ssl_certificate_path }}/nodes.zip
+        unzip nodes.zip
+        rm ca.zip nodes.zip && chmod 440 ca/ca.key
+      args:
+        chdir: "{{ es_ssl_certificate_path }}"
+        creates: "{{ es_ssl_certificate_path }}/{{ inventory_hostname }}"
+  delegate_to: "{{ groups.elasticsearch[0] }}"
+  run_once: true
+
+- name: Read generated certificates
+  slurp:
+    src: "{{ es_ssl_certificate_path }}/{{ item }}"
+  register: certificates
+  delegate_to: "{{ groups.elasticsearch[0] }}"
+  loop:
+    - "{{ inventory_hostname }}/{{ inventory_hostname }}.crt"
+    - "{{ inventory_hostname }}/{{ inventory_hostname }}.key"
+    - ca/ca.crt
+
+- name: Ensure certificate dir for nodes exist
+  file:
+    path: "{{ es_ssl_certificate_path }}/{{ item }}"
+    state: directory
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    mode: 0750
+  loop: 
+    - ca
+    - "{{ inventory_hostname }}"
+
+- name: Ensure Cert, Key, CA files exist
+  copy:
+    dest: "{{ es_ssl_certificate_path }}/{{ item['item'] }}"
+    content: "{{ item['content'] | b64decode }}"
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    mode: 0660
+  loop: "{{ certificates.results }}"
+  loop_control:
+    label: "{{ item['item'] }}"
+
+- set_fact:
+    es_ssl_key: "{{ inventory_hostname }}/{{ inventory_hostname }}.key"
+    es_ssl_certificate: "{{ inventory_hostname }}/{{ inventory_hostname }}.crt"
+    es_ssl_certificate_authority: ca/ca.crt

@@ -28,9 +28,9 @@
 
   - name: Create Bootstrap password for elastic user
     become: yes
-    shell: echo {{ es_api_basic_auth_password | quote }} | {{ es_home }}/bin/elasticsearch-keystore add -x 'bootstrap.password'
+    shell: printf {{ (es_api_basic_auth_password~'\n'~es_api_basic_auth_password) | quote }} | {{ es_home }}/bin/elasticsearch-reset-password -b -i -u {{ es_api_basic_auth_username }}
     when:
-      - es_api_basic_auth_username is defined and list_keystore is defined and es_api_basic_auth_username == 'elastic' and 'bootstrap.password' not in list_keystore.stdout_lines
+      - es_api_basic_auth_username is defined and es_api_basic_auth_username == 'elastic'
     environment:
       ES_PATH_CONF: "{{ es_conf_dir }}"
     no_log: true

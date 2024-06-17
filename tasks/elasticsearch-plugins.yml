@@ -18,7 +18,7 @@
     dest: "{{ es_home }}/plugins/x-pack"
     state: "absent"
 
-#List currently installed plugins. We have to list the directories as the list commmand fails if the ES version is different than the plugin version.
+#List currently installed plugins. We have to list the directories as the list command fails if the ES version is different than the plugin version.
 - name: Check installed elasticsearch plugins
   become: yes
   shell: "ls {{es_home}}/plugins {{list_command}}"

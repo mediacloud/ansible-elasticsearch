@@ -44,6 +44,7 @@
     group: "{{ es_group }}"
     mode: "660"
     force: yes
+    backup: yes
   register: system_change
   notify: restart elasticsearch
 
@@ -57,6 +58,7 @@
     group: "{{ es_group }}"
     mode: "660"
     force: yes
+    backup: yes
   notify: restart elasticsearch
 
 #Copy the systemd specific file if systemd is installed
@@ -90,6 +92,7 @@
     group: "{{ es_group }}"
     mode: "660"
     force: yes
+    backup: yes
   notify: restart elasticsearch
 
 - name: Copy log4j2.properties File
@@ -101,5 +104,6 @@
     group: "{{ es_group }}"
     mode: "660"
     force: yes
+    backup: yes
   notify: restart elasticsearch
   when: es_config_log4j2 != ''
