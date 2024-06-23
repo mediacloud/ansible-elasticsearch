@@ -26,15 +26,6 @@
       ES_PATH_CONF: "{{ es_conf_dir }}"
     check_mode: no
 
-  - name: Create Bootstrap password for elastic user
-    become: yes
-    shell: printf {{ (es_api_basic_auth_password~'\n'~es_api_basic_auth_password) | quote }} | {{ es_home }}/bin/elasticsearch-reset-password -b -i -u {{ es_api_basic_auth_username }}
-    when:
-      - es_api_basic_auth_username is defined and es_api_basic_auth_username == 'elastic'
-    environment:
-      ES_PATH_CONF: "{{ es_conf_dir }}"
-    no_log: true
-
   - name: Remove keystore entries
     become: yes
     command: >
