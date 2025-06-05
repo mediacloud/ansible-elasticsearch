@@ -38,6 +38,7 @@
 
 - name: Generate ssl certificates
   import_tasks: elasticsearch-certificates.yml
+  when: es_certificates
   tags:
       - certificates
 
