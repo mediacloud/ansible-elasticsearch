@@ -1,0 +1,19 @@
+# template for local jvm options, extracted from old
+# ansible-elasticsearch jvm.options.j2 dropped into
+# /etc/elasticsearch/jvm.d/
+
+# Xms represents the initial size of total heap space
+# Xmx represents the maximum size of total heap space
+{% if es_heap_size is defined %}
+-Xms{{ es_heap_size }}
+-Xmx{{ es_heap_size }}
+{% else %}
+-Xms2g
+-Xmx2g
+{% endif %}
+
+{% if es_jvm_custom_parameters !='' %}
+{% for item in es_jvm_custom_parameters %}
+{{ item }}
+{% endfor %}
+{% endif %}
