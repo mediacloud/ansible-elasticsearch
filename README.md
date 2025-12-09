@@ -10,6 +10,6 @@ to encourage leaving it alone (avoiding temptation to "improve" it).
 
 It's used by `mediacloud/newsscribe-ansible`
 
-NOTE!!!! Installs elasticsearch version 8.17.3, accordingly
+NOTE!!!! Installs elasticsearch version 8.17.4, accordingly
 jvm.options.j2 has been updated to the version from that release.
 *BUT* files not used at Media Cloud have NOT been updated!
